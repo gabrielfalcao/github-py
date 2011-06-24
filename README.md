@@ -13,7 +13,7 @@ some steps are taken in the API side, and some in your code.
 
 ## if you're new to OAuth
 
-there is a simple walkthrough the steps
+there is a simple walkthrough the [steps](http://developer.github.com/v3/oauth/)
 
 1. Your application has a code, with that code you give your visitor a
 url to visit

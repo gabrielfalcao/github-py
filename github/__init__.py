@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 version = '0.1'
-
 from inspect import ismethod
 
 
@@ -54,7 +53,20 @@ class API(object):
                'string holding the client_secret',
             )
 
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.store = self.validate_token_store(store)
+
+    @property
+    def is_authenticated(self):
+        return False
+
+    def __repr__(self):
+        return u'github.API("{0}", "{1}", store={2})'.format(
+            self.client_id,
+            self.client_secret,
+            self.store,
+        )
 
     def validate_token_store(self, store):
         if type(store) == TokenStore:

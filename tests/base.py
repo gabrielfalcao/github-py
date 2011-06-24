@@ -26,4 +26,4 @@ def prepare(context):
 def and_clear(context):
     HTTPretty.disable()
 
-httprettified_test = that_with_context(prepare, and_clear)
+httprettified = that_with_context(prepare, and_clear)

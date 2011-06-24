@@ -17,6 +17,7 @@
 import github
 
 from sure import that
+from tests.base import httprettified
 
 
 def test_it_should_require_the_client_id_in_first_place():
@@ -95,19 +96,40 @@ def test_does_not_complain_when_its_a_nice_implementation():
     assert that(api).is_a(github.API)
 
 
-# from tests.base import httprettified_test
-# @httprettified_test
-# def test_it_should(context):
-#     "github.API requires a TokenStore as argument"
-#
-#     class MyStore(github.TokenStore):
-#         data = {}
-#
-#         def set(self, k, v):
-#             self.data[k] = v
-#
-#         def get(self, k):
-#             return self.data.get(k)
-#
-#     storage = MyStore()
-#     api = github.API(storage)
+@httprettified
+def test_api_representation(context):
+    "github.API object should be nicely repr()'ed"
+
+    class MyStore(github.TokenStore):
+        data = {}
+
+        def set(self, k, v):
+            self.data[k] = v
+
+        def get(self, k):
+            return self.data.get(k)
+
+    simple = MyStore()
+    api = github.API('app-id-here', 'app-secret-here', store=simple)
+
+    assert that(repr(api)).equals(
+        'github.API("app-id-here", "app-secret-here", store=%r)' % simple)
+
+
+@httprettified
+def test_it_should_not_be_authenticated_by_default(context):
+    "github.API is not authenticated until requested"
+
+    class MyStore(github.TokenStore):
+        data = {}
+
+        def set(self, k, v):
+            self.data[k] = v
+
+        def get(self, k):
+            return self.data.get(k)
+
+    simple = MyStore()
+    api = github.API('app-id-here', 'app-secret-here', store=simple)
+
+    assert not api.is_authenticated, '%s should not be authenticated' % api
