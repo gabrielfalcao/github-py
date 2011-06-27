@@ -19,7 +19,6 @@ from httpretty import HTTPretty
 
 
 def prepare(context):
-    context.http = HTTPretty
     HTTPretty.enable()
 
 

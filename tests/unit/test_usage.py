@@ -15,8 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import github
+import simplejson
 
 from sure import that
+from httpretty import HTTPretty
+
 from tests.base import httprettified
 
 
@@ -133,3 +136,58 @@ def test_it_should_not_be_authenticated_by_default(context):
     api = github.API('app-id-here', 'app-secret-here', store=simple)
 
     assert not api.is_authenticated, '%s should not be authenticated' % api
+
+
+@httprettified
+def test_first_authentication_step_is_redirect(context):
+    "github.API's first authentication step is a redirect"
+
+    class MyStore(github.TokenStore):
+        data = {}
+
+        def set(self, k, v):
+            self.data[k] = v
+
+        def get(self, k):
+            return self.data.get(k)
+
+    simple = MyStore()
+    api = github.API('app-id-here', 'app-secret-here', store=simple)
+
+    result = api.authenticate()
+
+    assert that(result).is_a(basestring)
+
+    assert that(result).equals(
+        'https://github.com/login/oauth/authorize?client_id=app-id-here',
+    )
+
+
+@httprettified
+def test_second_authentication_step_takes_code_and_makes_a_request(context):
+    "github.API's second authentication step is a redirect"
+
+    class MyStore(github.TokenStore):
+        data = {}
+
+        def set(self, k, v):
+            self.data[k] = v
+
+        def get(self, k):
+            return self.data.get(k)
+
+    simple = MyStore()
+    api = github.API('app-id-here', 'app-secret-here', store=simple)
+
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://github.com/login/oauth/access_token',
+        body='{"access_token": "this-is-the-access-token"}',
+        status=200,
+    )
+
+    result = api.authenticate(code='visitor-code')
+    assert that(result).is_a(github.API)
+
+    last_request = HTTPretty.last_request
+    assert that(last_request.headers).has('Authentication')
