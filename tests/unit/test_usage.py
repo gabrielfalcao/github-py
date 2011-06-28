@@ -191,3 +191,9 @@ def test_second_authentication_step_takes_code_and_makes_a_request(context):
 
     last_request = HTTPretty.last_request
     assert that(last_request.headers).has('Authentication')
+
+
+# create a test that check when the token is expired, and raises an
+# exception when any search on the API is issued, raise a
+# GithubTokenExpired exception
+
