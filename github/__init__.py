@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 version = '0.1'
 from inspect import ismethod
+from httplib2 import Http
 
 
 class TokenStore(object):
@@ -40,7 +41,8 @@ class API(object):
         self,
         client_id=None,
         client_secret=None,
-        store=None):
+        store=None,
+        **kwargs):
 
         if not isinstance(client_id, basestring):
             raise TypeError(
@@ -56,6 +58,11 @@ class API(object):
         self.client_id = client_id
         self.client_secret = client_secret
         self.store = self.validate_token_store(store)
+        self.http = Http(**kwargs)
+
+    def authenticate(self, code=None):
+        if self.store:
+            token = self.store.get('github:token')
 
     @property
     def is_authenticated(self):
