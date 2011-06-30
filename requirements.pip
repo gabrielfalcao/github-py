@@ -2,5 +2,8 @@ sure>=0.5.0
 HTTPretty
 httplib2
 coverage
-tornado
 simplejson
+lxml
+tornado
+django
+lettuce

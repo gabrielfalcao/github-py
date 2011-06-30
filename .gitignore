@@ -9,3 +9,4 @@ dist/
 .#*
 #*
 github.egg-info
+.github-secret

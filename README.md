@@ -154,6 +154,12 @@ if __name__ == "__main__":
 <p>I have to say your picture: <img src="{{ user.avatar_url }}" alt="{{ user.name }}'s avatar" /> is terrific!</p>
 ```
 
+## by the way
+
+this library will **always** make a initial request to the github API
+querying for the logged user. This way we can validate the stored
+access token as well as caching the basic user profile info.
+
 # contributing
 
 Firstly, I recommend using a [virtualenv](http://pypi.python.org/pypi/virtualenv).
