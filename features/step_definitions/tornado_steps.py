@@ -14,3 +14,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from lettuce import step, world
+
+
+@step(u'Given I go to "(.*)"')
+def given_i_go_to_group1(step, group1):
+    world.browser.get(group1)
+
+
+@step(u'When I get redirected to "(.*)"')
+def when_i_get_redirected_to_group1(step, group1):
+    import debug
+
+
+@step(u'And authorize the app "(.*)"')
+def and_authorize_the_app_group1(step, group1):
+    import debug
+
+
+@step(u'Then I should be redirected back to "(.*)"')
+def then_i_should_be_redirected_back_to_group1(step, group1):
+    import debug
+
+
+@step(u'And the response should match these values:')
+def and_the_response_should_match_these_values(step):
+    import debug

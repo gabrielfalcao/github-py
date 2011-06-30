@@ -18,9 +18,7 @@ import github
 import simplejson
 
 from sure import that
-from httpretty import HTTPretty
-
-from tests.base import httprettified
+from httpretty import HTTPretty, httprettified
 
 
 def test_it_should_require_the_client_id_in_first_place():
@@ -100,7 +98,7 @@ def test_does_not_complain_when_its_a_nice_implementation():
 
 
 @httprettified
-def test_api_representation(context):
+def test_api_representation():
     "github.API object should be nicely repr()'ed"
 
     class MyStore(github.TokenStore):
@@ -120,7 +118,7 @@ def test_api_representation(context):
 
 
 @httprettified
-def test_it_should_not_be_authenticated_by_default(context):
+def test_it_should_not_be_authenticated_by_default():
     "github.API is not authenticated until requested"
 
     class MyStore(github.TokenStore):
@@ -139,8 +137,15 @@ def test_it_should_not_be_authenticated_by_default(context):
 
 
 @httprettified
-def test_first_authentication_step_is_redirect(context):
+def test_first_authentication_step_is_redirect():
     "github.API's first authentication step is a redirect"
+
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://github.com/login/oauth/access_token',
+        status=401,
+        body={'message': 'Bad credentials'},
+    )
 
     class MyStore(github.TokenStore):
         data = {}
@@ -164,8 +169,16 @@ def test_first_authentication_step_is_redirect(context):
 
 
 @httprettified
-def test_second_authentication_step_takes_code_and_makes_a_request(context):
-    "github.API's second authentication step is a redirect"
+def test_second_authentication_step_takes_code_and_makes_a_request():
+    "github.API's second authentication step takes a code and requests a " \
+    "access token"
+
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://github.com/login/oauth/access_token',
+        body='{"access_token": "this-is-the-access-token"}',
+        status=200,
+    )
 
     class MyStore(github.TokenStore):
         data = {}
@@ -179,21 +192,71 @@ def test_second_authentication_step_takes_code_and_makes_a_request(context):
     simple = MyStore()
     api = github.API('app-id-here', 'app-secret-here', store=simple)
 
+    result = api.authenticate(code='visitor-code')
+
+    try:
+        last_body = simplejson.loads(HTTPretty.last_request.body)
+    except:
+        raise AssertionError(
+            'the request body was not json serializable: %r' % \
+            HTTPretty.last_request.body)
+
+    assert that(last_body).at('client_secret').equals('app-secret-here')
+    assert that(last_body).at('code').equals('visitor-code')
+    assert that(last_body).at('client_id').equals('app-id-here')
+
+    assert that(result).is_a(github.API)
+
+
+@httprettified
+def test_dont_authorize_401():
+    "github.API's recognized it was not authorized (response 401)"
+
     HTTPretty.register_uri(
         HTTPretty.POST,
         'https://github.com/login/oauth/access_token',
-        body='{"access_token": "this-is-the-access-token"}',
-        status=200,
+        status=401,
+    )
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://api.github.com/user',
+        body='{"login": "gabrielfalcao"}',
     )
 
-    result = api.authenticate(code='visitor-code')
-    assert that(result).is_a(github.API)
+    api = github.API('app-id-here', 'app-secret-here')
 
-    last_request = HTTPretty.last_request
-    assert that(last_request.headers).has('Authentication')
+    result = api.authenticate(code='bad-code')
 
+    assert that(result).is_a(basestring)
+    assert that(result).equals(
+        'https://github.com/login/oauth/authorize?client_id=app-id-here',
+    )
+
+
+@httprettified
+def test_dont_authorize_bad_credentials():
+    "github.API's recognized it was not authorized (with message)"
+
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://github.com/login/oauth/access_token',
+        body='{"message": "Bad credentials"}',
+    )
+    HTTPretty.register_uri(
+        HTTPretty.POST,
+        'https://api.github.com/user',
+        body='{"message": "Bad credentials"}',
+    )
+
+    api = github.API('app-id-here', 'app-secret-here')
+
+    result = api.authenticate(code='bad-code')
+
+    assert that(result).is_a(basestring)
+    assert that(result).equals(
+        'https://github.com/login/oauth/authorize?client_id=app-id-here',
+    )
 
 # create a test that check when the token is expired, and raises an
 # exception when any search on the API is issued, raise a
 # GithubTokenExpired exception
-
