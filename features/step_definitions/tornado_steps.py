@@ -19,17 +19,17 @@ from lettuce import step, world
 
 
 @step(u'Given I go to "(.*)"')
-def given_i_go_to_group1(step, group1):
-    world.browser.get(group1)
+def given_i_go_to_group1(step, url):
+    world.browser.open(url)
 
 
 @step(u'When I get redirected to "(.*)"')
-def when_i_get_redirected_to_group1(step, group1):
+def when_i_get_redirected_to_group1(step, url):
     import debug
 
 
 @step(u'And authorize the app "(.*)"')
-def and_authorize_the_app_group1(step, group1):
+def and_authorize_the_app_group1(step, name):
     import debug
 
 

@@ -36,6 +36,7 @@ from multiprocessing import Process
 
 from lettuce import before, after, world
 
+
 class UserHandler(RequestHandler):
     @authenticated
     def get(self, api, name, params):
@@ -55,8 +56,8 @@ class Server(object):
             [
                 (r"/(.*)/?(.*)", UserHandler),
             ],
-            github_client_id='b2ae1ce0e63e9cbd7f9d',
-            github_client_secret='881244b5010a80960432536ab6a2b4a6d5cb49b9',
+            github_client_id=world.tornado_app_id,
+            github_client_secret=world.tornado_app_secret,
             cookie_secret=__file__,
         )
 

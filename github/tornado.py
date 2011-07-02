@@ -21,13 +21,19 @@ from github import API, TokenStore
 class TornadoSessionStore(TokenStore):
     def __init__(self, handler):
         self.handler = handler
+        self.cache = {}
 
     def get(self, key):
-        return self.handler.get_secure_cookie(key)
+        cached = self.cache.get(key)
+        if cached:
+            return cached
+
+        fresh = self.handler.get_secure_cookie(key)
+        self.cache[key] = fresh
+        return fresh
 
     def set(self, key, value):
         self.handler.set_secure_cookie(key, value)
-        assert self.get(key) == value, '%r != %r' % (self.get(key), value)
 
 
 class InvalidGithubTornadoConfiguration(Exception):
