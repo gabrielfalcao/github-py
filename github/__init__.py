@@ -50,7 +50,7 @@ class GithubResponse(dict):
 
         if self.status_code in (200, 401):
             try:
-                self.update(simplejson.loads(unicode(body, 'utf-8')))
+                self.update(simplejson.loads(body))
             except simplejson.JSONDecodeError:
                 pass
 
@@ -79,11 +79,11 @@ class GithubResponse(dict):
         return True
 
     def message_matches(self, pattern):
-        if not 'message' in self.headers:
+        if not 'message' in self:
             return False
 
         regex = re.compile(pattern, re.I | re.U)
-        return regex.search(regex, self['message'])
+        return regex.search(self['message'])
 
 
 class API(object):

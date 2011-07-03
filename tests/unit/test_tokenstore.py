@@ -33,8 +33,9 @@ def test_tokenstore_set():
     "github.TokenStore.set is not implemented by default"
 
     store = github.TokenStore()
-    assert that(store.set, with_args=['key-name']).raises(
+    assert that(store.set, with_args=['key-name', 'value']).raises(
         'github.TokenStore must be subclassed and the method ' \
         'set must be implemented',
     )
-    assert that(store.set, with_args=['key-name']).raises(NotImplementedError)
+    assert that(store.set, with_args=['key-name', 'value']).raises(
+        NotImplementedError)
