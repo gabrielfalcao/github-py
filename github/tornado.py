@@ -21,16 +21,10 @@ from github import API, TokenStore
 class TornadoSessionStore(TokenStore):
     def __init__(self, handler):
         self.handler = handler
-        self.cache = {}
+        self.handler.clear_all_cookies()
 
     def get(self, key):
-        cached = self.cache.get(key)
-        if cached:
-            return cached
-
-        fresh = self.handler.get_secure_cookie(key)
-        self.cache[key] = fresh
-        return fresh
+        return self.handler.get_secure_cookie(key)
 
     def set(self, key, value):
         self.handler.set_secure_cookie(key, value)
@@ -75,6 +69,9 @@ class AuthenticationManager(object):
 
         if isinstance(api, basestring):
             return self.handler.redirect(api, True)
+
+        if api.is_authenticated and not api.user:
+            import ipdb;ipdb.set_trace()
 
         return self.callback(self.handler, api, *args, **kwargs)
 

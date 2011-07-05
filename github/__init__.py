@@ -110,9 +110,6 @@ class API(object):
         self.store = self.validate_token_store(store)
         self.http = Http(**kwargs)
         self.is_authenticated = False
-        self.__cache = dict(
-            user=None,
-        )
 
     def request(self, url, data=None, method='GET', headers=None):
         # always JSON
@@ -145,25 +142,15 @@ class API(object):
     def user(self):
         token = self.store and self.store.get(TOKENSTORE_KEY)
 
-        u = self.__cache.get('user', None)
-        if u:
-            return u
-
         if not token:
             return None
 
-        response = self.request('https://api.github.com/user')
-        self.__cache['user'] = response
-        return self.__cache['user']
+        return self.request('https://api.github.com/user')
 
     def authenticate(self, code=None):
         url = '%s?client_id=%s' % (LOGIN_URL, self.client_id)
 
-        token = self.store and self.store.get(TOKENSTORE_KEY)
-        if token:
-            return self
-
-        if self.user:
+        if isinstance(self.user, dict) and 'login' in self.user:
             return self
 
         elif isinstance(code, basestring) and len(code) > 0:

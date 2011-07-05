@@ -20,24 +20,24 @@ from lettuce import step, world
 
 @step(u'Given I go to "(.*)"')
 def given_i_go_to_group1(step, url):
-    world.browser.open(url)
+    world.browser.visit(url)
 
 
 @step(u'When I get redirected to "(.*)"')
 def when_i_get_redirected_to_group1(step, url):
-    import debug
+    import ipdb;ipdb.set_trace()
 
 
 @step(u'And authorize the app "(.*)"')
 def and_authorize_the_app_group1(step, name):
-    import debug
+    import ipdb;ipdb.set_trace()
 
 
 @step(u'Then I should be redirected back to "(.*)"')
 def then_i_should_be_redirected_back_to_group1(step, group1):
-    import debug
+    import ipdb;ipdb.set_trace()
 
 
 @step(u'And the response should match these values:')
 def and_the_response_should_match_these_values(step):
-    import debug
+    import ipdb;ipdb.set_trace()

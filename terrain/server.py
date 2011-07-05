@@ -40,7 +40,7 @@ from lettuce import before, after, world
 class UserHandler(RequestHandler):
     @authenticated
     def get(self, api, name, params):
-        self.write(api.user)
+        self.write(api.user.raw)
 
 
 class Server(object):

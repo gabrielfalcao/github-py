@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import mechanize
+from splinter.browser import Browser
 from lxml import html
 from os.path import dirname, abspath, join, exists
 from lettuce import before, world
@@ -47,11 +47,10 @@ def get_passwords():
 
 @before.each_scenario
 def prepare_client(scenario):
-    world.browser = mechanize.Browser()
-    world.browser.open('https://github.com/login')
+    world.browser = Browser()
+    world.browser.visit('https://github.com/login')
 
-    # fill the login form
-    form = list(world.browser.forms())[0]
-    form['login'] = world.github_credentials['login']
-    form['password'] = world.github_credentials['password']
-    world.browser.open(form.click())
+    for field, value in world.github_credentials.items():
+        world.browser.find_by_name(field).first.value = value
+
+    world.browser.find_by_name("commit").first.click()
